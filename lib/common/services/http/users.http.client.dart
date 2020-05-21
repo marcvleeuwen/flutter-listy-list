@@ -5,11 +5,12 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:listylist/common/models/user.model.dart';
 import 'package:listylist/common/utils/auth.utils.dart';
+import 'package:listylist/common/utils/constants.utils.dart';
 
 class UserHttpClient {
   Future<List<UserModel>> getUsers() async {
     final response = await http.get(
-      'http://192.168.1.39:3030/users/',
+      ConstantsUtils.SERVER_ADDRESS + '/users/',
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
@@ -26,7 +27,7 @@ class UserHttpClient {
 
   Future<UserModel> getUser(String userId) async {
     final response = await http.get(
-      'http://192.168.1.39:3030/users/' + userId,
+      ConstantsUtils.SERVER_ADDRESS + '/users/' + userId,
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
@@ -42,15 +43,14 @@ class UserHttpClient {
   }
 
   Future<UserModel> createUser(UserModel user) async {
-    bool emailValid = RegExp(
-            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-        .hasMatch(user.email.toLowerCase());
-    bool usernameValid =
-        RegExp(r"^[a-zA-Z0-9-_]+").hasMatch(user.username.toLowerCase());
+    bool emailValid =
+        RegExp(ConstantsUtils.EMAIL_REGEX).hasMatch(user.email.toLowerCase());
+    bool usernameValid = RegExp(ConstantsUtils.USERNAME_REGEX)
+        .hasMatch(user.username.toLowerCase());
 
     if (usernameValid && emailValid) {
       final response = await http.post(
-        'http://192.168.1.39:3030/users/',
+        ConstantsUtils.SERVER_ADDRESS + '/users/',
         body: {
           "email": user.email,
           "username": user.username,
@@ -84,29 +84,50 @@ class UserHttpClient {
   }
 
   Future<UserModel> updateUser(UserModel user) async {
-    final response = await http.put(
-      'http://192.168.1.39:3030/users/' + user.id,
-      body: {
-        "email": user.email,
-        "username": user.username,
-        "password": user.password,
-        "avatar": user.avatar
-      },
-      headers: {
-        HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
-      },
-    );
-    if (response.statusCode < 400) {
-      // loop over the parsed JSON and create a new list for each index
-      return UserModel.fromJson(json.decode(response.body));
+    bool emailValid =
+        RegExp(ConstantsUtils.EMAIL_REGEX).hasMatch(user.email.toLowerCase());
+    bool usernameValid = RegExp(ConstantsUtils.USERNAME_REGEX)
+        .hasMatch(user.username.toLowerCase());
+
+    if (usernameValid && emailValid) {
+      final response = await http.put(
+        ConstantsUtils.SERVER_ADDRESS + '/users/' + user.id,
+        body: {
+          "email": user.email,
+          "username": user.username,
+          "password": user.password,
+          "avatar": user.avatar
+        },
+        headers: {
+          HttpHeaders.authorizationHeader:
+              'Bearer ' + await AuthUtils.getToken()
+        },
+      );
+      if (response.statusCode < 400) {
+        // loop over the parsed JSON and create a new list for each index
+        return UserModel.fromJson(json.decode(response.body));
+      } else {
+        throw Exception(json.decode(response.body));
+      }
     } else {
-      throw Exception(json.decode(response.body));
+      final List error = [];
+      if (!usernameValid) {
+        error.add({
+          "message": "Username can only contain numbers, characters, _ and -",
+          "field": "username"
+        });
+      }
+      if (!emailValid) {
+        error.add({"message": "Invalid email address", "field": "email"});
+      }
+
+      throw Exception(error);
     }
   }
 
   Future<void> removeUser(String userId) async {
     final response = await http.delete(
-      'http://192.168.1.39:3030/users/' + userId,
+      ConstantsUtils.SERVER_ADDRESS + '/users/' + userId,
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },

@@ -3,13 +3,13 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:listylist/common/utils/auth.utils.dart';
+import 'package:listylist/common/utils/constants.utils.dart';
 
 class AuthenticationHttpClient {
   Future<void> login(String username, String password) async {
     var body;
-    final bool emailValid = RegExp(
-            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
-        .hasMatch(username.toLowerCase());
+    final bool emailValid =
+        RegExp(ConstantsUtils.EMAIL_REGEX).hasMatch(username.toLowerCase());
     if (emailValid) {
       body = {"email": username, "password": password, "strategy": "email"};
     } else {
@@ -19,8 +19,8 @@ class AuthenticationHttpClient {
         "strategy": "username"
       };
     }
-    final response =
-        await http.post('http://192.168.1.39:3030/authentication', body: body);
+    final response = await http
+        .post(ConstantsUtils.SERVER_ADDRESS + '/authentication', body: body);
     if (response.statusCode < 400) {
       // parse the JSON and store only the 'data' array in the iterable
       String token = json.decode(response.body)["accessToken"];

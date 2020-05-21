@@ -4,13 +4,14 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'package:listylist/common/utils/auth.utils.dart';
+import 'package:listylist/common/utils/constants.utils.dart';
 
 import '../../models/list.model.dart';
 
 class ListHttpClient {
   Future<List<ListModel>> getAllLists() async {
     final response = await http.get(
-      'http://192.168.1.39:3030/lists/',
+      ConstantsUtils.SERVER_ADDRESS + '/lists/',
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
@@ -27,7 +28,7 @@ class ListHttpClient {
 
   Future<ListModel> getList(String listId) async {
     final response = await http.get(
-      'http://192.168.1.39:3030/lists/' + listId,
+      ConstantsUtils.SERVER_ADDRESS + '/lists/' + listId,
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },

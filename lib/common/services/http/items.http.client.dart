@@ -6,12 +6,13 @@ import 'package:http/http.dart' as http;
 import 'package:listylist/common/models/item.model.dart';
 import 'package:listylist/common/models/list.model.dart';
 import 'package:listylist/common/utils/auth.utils.dart';
+import 'package:listylist/common/utils/constants.utils.dart';
 
 class ItemHttpClient {
   Future<ListModel> updateItems(
       List<ItemModel> items, String listId) async {
     final response = await http.post(
-      'http://192.168.1.39:3030/items/',
+      ConstantsUtils.SERVER_ADDRESS + '/items/',
       body: {
         "listId": listId,
         "items": items,
@@ -29,7 +30,7 @@ class ItemHttpClient {
 
   Future<ListModel> removeItem(String itemId, String listId) async {
     final response = await http.delete(
-      'http://192.168.1.39:3030/items/' + itemId + '/?from=' + listId,
+      ConstantsUtils.SERVER_ADDRESS + '/items/' + itemId + '/?from=' + listId,
       headers: {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
