@@ -14,7 +14,7 @@ class UserHttpClient {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode < 400) {
       // parse the JSON and store only the 'data' array in the iterable
       Iterable res = json.decode(response.body)["data"];
       // loop over the parsed JSON and create a new list for each index
@@ -31,7 +31,7 @@ class UserHttpClient {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode < 400) {
       // parse the JSON and store only the 'data' array in the iterable
       Iterable res = json.decode(response.body)["data"];
       // loop over the parsed JSON and create a new list for each index
@@ -41,10 +41,53 @@ class UserHttpClient {
     }
   }
 
+  Future<UserModel> createUser(UserModel user) async {
+    bool emailValid = RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(user.email.toLowerCase());
+    bool usernameValid =
+        RegExp(r"^[a-zA-Z0-9-_]+").hasMatch(user.username.toLowerCase());
+
+    if (usernameValid && emailValid) {
+      final response = await http.post(
+        'http://192.168.1.39:3030/users/',
+        body: {
+          "email": user.email,
+          "username": user.username,
+          "password": user.password
+        },
+        headers: {
+          HttpHeaders.authorizationHeader:
+              'Bearer ' + await AuthUtils.getToken()
+        },
+      );
+      if (response.statusCode < 400) {
+        // loop over the parsed JSON and create a new list for each index
+        return UserModel.fromJson(json.decode(response.body));
+      } else {
+        throw Exception(json.decode(response.body));
+      }
+    } else {
+      final List error = [];
+      if (!usernameValid) {
+        error.add({
+          "message": "Username can only contain numbers, characters, _ and -",
+          "field": "username"
+        });
+      }
+      if (!emailValid) {
+        error.add({"message": "Invalid email address", "field": "email"});
+      }
+
+      throw Exception(error);
+    }
+  }
+
   Future<UserModel> updateUser(UserModel user) async {
     final response = await http.put(
-      'http://192.168.1.39:3030/lists/' + user.id,
+      'http://192.168.1.39:3030/users/' + user.id,
       body: {
+        "email": user.email,
         "username": user.username,
         "password": user.password,
         "avatar": user.avatar
@@ -53,7 +96,7 @@ class UserHttpClient {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode < 400) {
       // loop over the parsed JSON and create a new list for each index
       return UserModel.fromJson(json.decode(response.body));
     } else {
@@ -68,7 +111,7 @@ class UserHttpClient {
         HttpHeaders.authorizationHeader: 'Bearer ' + await AuthUtils.getToken()
       },
     );
-    if (response.statusCode == 200) {
+    if (response.statusCode < 400) {
       return UserModel.fromJson(json.decode(response.body));
       ;
     } else {

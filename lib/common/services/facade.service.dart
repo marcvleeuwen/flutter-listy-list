@@ -10,19 +10,10 @@ import 'http/list.http.client.dart';
 
 class ServiceFacade {
   // HTTP Services
-  final listHttpClient = new ListHttpClient();
   final authHttpClient = new AuthenticationHttpClient();
+  final listHttpClient = new ListHttpClient();
   final userHttpClient = new UserHttpClient();
   final itemHttpClient = new ItemHttpClient();
-
-  // List
-  Future<List<ListModel>> getAllLists() async {
-    return await listHttpClient.getAllLists();
-  }
-
-  Future<ListModel> getList(String listId) async {
-    return await listHttpClient.getList(listId);
-  }
 
   // Auth
   Future<void> login(String username, String password) async {
@@ -35,6 +26,15 @@ class ServiceFacade {
 
   Future<bool> isAuthenticated(String username, String password) async {
     return await AuthUtils.isAuthenticated();
+  }
+
+  // List
+  Future<List<ListModel>> getAllLists() async {
+    return await listHttpClient.getAllLists();
+  }
+
+  Future<ListModel> getList(String listId) async {
+    return await listHttpClient.getList(listId);
   }
 
   // Items
