@@ -42,20 +42,17 @@ class UserHttpClient {
     }
   }
 
-  Future<UserModel> createUser(UserModel user) async {
+  Future<UserModel> createUser(
+      String username, String email, String password) async {
     bool emailValid =
-        RegExp(ConstantsUtils.EMAIL_REGEX).hasMatch(user.email.toLowerCase());
-    bool usernameValid = RegExp(ConstantsUtils.USERNAME_REGEX)
-        .hasMatch(user.username.toLowerCase());
+        RegExp(ConstantsUtils.EMAIL_REGEX).hasMatch(email.toLowerCase());
+    bool usernameValid =
+        RegExp(ConstantsUtils.USERNAME_REGEX).hasMatch(username.toLowerCase());
 
     if (usernameValid && emailValid) {
       final response = await http.post(
         ConstantsUtils.SERVER_ADDRESS + '/users/',
-        body: {
-          "email": user.email,
-          "username": user.username,
-          "password": user.password
-        },
+        body: {"email": email, "username": username, "password": password},
         headers: {
           HttpHeaders.authorizationHeader:
               'Bearer ' + await AuthUtils.getToken()

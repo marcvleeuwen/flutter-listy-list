@@ -20,6 +20,10 @@ class ServiceFacade {
     return await authHttpClient.login(username, password);
   }
 
+  Future<void> jwtLogin(String token) async {
+    return await authHttpClient.jwtLogin(token);
+  }
+
   Future<void> logout(String username, String password) async {
     return await AuthUtils.removeToken();
   }
@@ -61,5 +65,9 @@ class ServiceFacade {
 
   Future<void> removeUser(String userId) async {
     return await userHttpClient.removeUser(userId);
+  }
+
+  Future<UserModel> createUser(String username, String email, String password) async {
+    return await  userHttpClient.createUser(username, email, password);
   }
 }

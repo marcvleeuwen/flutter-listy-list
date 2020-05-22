@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:listylist/common/services/facade.service.dart';
 import 'package:listylist/common/utils/auth.utils.dart';
+import 'package:listylist/screens/sign-up.dart';
+import 'package:listylist/screens/splash.dart';
+
+import 'screens/login.dart';
 
 void main() => runApp(MyApp());
 
@@ -14,6 +18,12 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
+      routes: <String, WidgetBuilder>{
+        '/home': (context) => MyApp(),
+        '/splash': (context) => SplashScreen(),
+        '/login': (context) => LoginScreen(),
+        '/sign-up': (context) => SignUpScreen(),
+      },
     );
   }
 }
@@ -36,20 +46,11 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void _callService(String service) {
+  void _callService(String service) async {
     switch (service) {
       case 'login':
-        AuthUtils.isAuthenticated().then((value) {
-          if(value) {
-            print('authorized');
-          } else {
-            ServiceFacade().login('user1', 'password').then((res) {
-              print('Login successful');
-            }).catchError((onError) {
-              print('login' + onError);
-            });
-          }
-        });
+        print(await AuthUtils.isAuthenticated());
+        print(await AuthUtils.getToken());
         break;
       case 'lists':
         ServiceFacade().getAllLists().then((res) {
@@ -58,8 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
           print('getAllLists: ' + err);
         });
         break;
-        case 'list':
-        ServiceFacade().getList('123').then((res) {
+      case 'list':
+        await ServiceFacade().getAllLists().then((res) {
           print(res);
         }).catchError((err) {
           print(err);
@@ -92,9 +93,10 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             new RaisedButton(
               onPressed: () {
-                _callService('list');
+//                _callService('list');
+                Navigator.pushReplacementNamed(context, '/splash');
               },
-              child: new Text("get single list"),
+              child: new Text("splash test"),
             ),
           ],
         ),
