@@ -24,7 +24,7 @@ class ServiceFacade {
     return await authHttpClient.jwtLogin(token);
   }
 
-  Future<void> logout(String username, String password) async {
+  Future<void> logout() async {
     return await AuthUtils.removeToken();
   }
 

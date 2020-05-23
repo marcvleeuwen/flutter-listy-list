@@ -66,6 +66,12 @@ class _MyHomePageState extends State<MyHomePage> {
           print(err);
         });
         break;
+      case 'logout':
+        await ServiceFacade().logout().catchError((err) {
+          print(err);
+        });
+        Navigator.pushReplacementNamed(context, '/splash');
+        break;
     }
   }
 
@@ -97,6 +103,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.pushReplacementNamed(context, '/splash');
               },
               child: new Text("splash test"),
+            ),
+            new RaisedButton(
+              onPressed: () {
+                _callService('logout');
+              },
+              child: new Text("logout"),
             ),
           ],
         ),
